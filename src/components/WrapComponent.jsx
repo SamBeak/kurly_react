@@ -49,6 +49,40 @@ import PostCodeComponent from './wrap/PostCodeComponent';
 
 export default function WrapComponent() {
    
+    // 로그인 유지하기 상태변수
+    const [signin, setSigin] = React.useState({
+        signinKey: 'KURLYUSERLOGIN',
+        user_id:'',
+        expires:''
+    });
+    const {signinKey, user_id, expires} = signin;
+
+    React.useEffect(()=>{
+        // 로컬스토레이지 로그인 정보 가져오기
+        let result='';
+        if( localStorage.getItem(signinKey)!==null ){
+             result = JSON.parse(localStorage.getItem(signinKey)); 
+             if( new Date() > result.expires){
+                alert('만료일이 지났습니다. 로그아웃되었습니다.');
+                setSigin({
+                    ...signin,
+                    user_id: '',
+                    expires: ''
+                })
+                localStorage.removeItem(signinKey); // 로그인 정보 모두 삭제
+             } 
+             else{
+                setSigin({
+                    ...signin,
+                    user_id: result.user_id,
+                    expires: result.expires
+                 })
+             }
+        }
+
+    },[user_id, expires, signinKey]);
+
+
     // 로그인 페이지 
     // 아이디찾기 상태관리    
     // 비밀번호찾기 상태관리
@@ -391,7 +425,7 @@ export default function WrapComponent() {
 
     return (
         <div id='wrap'>
-            <GlobalContext.Provider value={{ CARTPRODUCTKEY, VIEWPRODUCTKEY, TOPMODALKEY, ADDRESSKEY, isAdmin, mainModalShowOut, mainModalOneYearShowOut, addressAuto, postCodeClose, openPopupDaumPostApi,addr, setAddr, login, setLogin }}>
+            <GlobalContext.Provider value={{ CARTPRODUCTKEY, VIEWPRODUCTKEY, TOPMODALKEY, ADDRESSKEY, isAdmin, mainModalShowOut, mainModalOneYearShowOut, addressAuto, postCodeClose, openPopupDaumPostApi,addr, setAddr, login, setLogin, signin, setSigin }}>
                 <ConfirmContext.Provider value={{ confirmMsg, confirmModalOpen, confirmModalClose, isConfirmModal, ConfirmModalOkCancelOpen, ConfirmModalOkCancelClose, confirmMsgOkCancel, isConfirmModalOkCancelResult }}>
                     <CartContext.Provider value={{ cartCountNumber, cartCount }}>
                             {

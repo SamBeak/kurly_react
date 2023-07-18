@@ -18,7 +18,7 @@ export default function Section7SlideComponent ({상품, n, setViewProduct}) {
             setCnt(0);
             slideWrap.current.style.left = `0%`;
         }
-    },[cnt]);
+    },[cnt, n]);
 
     const onClickNext=(e)=>{
         e.preventDefault();

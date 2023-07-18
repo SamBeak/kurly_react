@@ -1,30 +1,65 @@
 import React from 'react';
 import './notice_scss/notice_write.scss';
 import NoticeLeftNavComponent from './NoticeComponent/NoticeLeftNavComponent';
+import axios from 'axios';
+import { GlobalContext } from '../../../context/GlobalContext';
 
 export default function NoticeWriteFormPageComponent () {
 
+    const {signin, setSigin} = React.useContext(GlobalContext);
+
     const [state, setState] = React.useState({
-        subject:'',
-        contents:''
+        제목:'',
+        내용:''
     });
-    const {subject, contents} = state;
+
+    // 입력상자 온체인지 이벤트
+
+
+
 
     const onSubmitWrite=(e)=>{
         e.preventDefault();
-        // axios()        
+        axios({
+            url:'/bbs/writeAction_react.jsp',
+            method:'POST',
+            data: {},
+            params: {
+            //    "userId": signin.user_id,
+               "userId": 'love',
+               "subject": state.제목, 
+               "content": state.내용
+           }
+        })
+        .then((res)=>{   
+            console.log( res )         
+            console.log( res.data );
+            if(res.status===200 && res.data === 1 ){
+                alert('글이 등록 되었습니다.');
+                window.location.pathname = '/notice';
+            }
+            else{
+               alert('등록실패 데이터 확인하고 다시 시도하세요');
+            }
+        })
+        .catch((err)=>{
+            console.log('AXIOS 실패!' + err );
+        });
+        
+
+
     }
 
     const onChangeSubject=(e)=>{
         setState({
             ...state,
-            subject: e.target.value,
+            제목: e.target.value,
         })
     }
     const onChangeContents=(e)=>{
         setState({
             ...state,
-            contents: e.target.value,
+            내용: e.target.value,
         })
     }
 
@@ -49,7 +84,7 @@ export default function NoticeWriteFormPageComponent () {
                                     type="text" 
                                     name='subject' 
                                     id='subject' 
-                                    value={subject} 
+                                    value={state.제목} 
                                     placeholder='제목을 입력해 주세요' 
                                     />
                                 </li>
@@ -60,7 +95,7 @@ export default function NoticeWriteFormPageComponent () {
                                     name="contents" 
                                     id="contents"  
                                     placeholder='내용을 입력해 주세요' 
-                                    value={contents}
+                                    value={state.내용}
                                     ></textarea>
                                 </li>
                             </ul> 

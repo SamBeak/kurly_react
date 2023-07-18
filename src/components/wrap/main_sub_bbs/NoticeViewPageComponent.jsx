@@ -1,7 +1,7 @@
 import React from 'react';
 import './notice_scss/notice_view.scss';
 import { ConfirmContext } from '../../../context/ConfirmContext';
-// 쿼리 스트링 => 키(listNum)와 키값(item.NO)
+// 쿼리 스트링 => 키(번호)와 키값(item.NO)
 // 파라미터 => 보내온 파라미터 데이터를 추출(검색)
 import {useSearchParams} from 'react-router-dom';
 import axios from 'axios';
@@ -10,52 +10,41 @@ import axios from 'axios';
 export default function NoticeViewPageComponent () {
 
     const [param, setParam] = useSearchParams();
-    const listNum = param.get('listNum'); // 보내온 키를 이용 키값을 가져온다.
-
-    const [state,setState] = React.useState({
-        공지사항: {}
-    });
-
-    const {공지사항} = state;
-
-    React.useEffect(()=>{
-        let formData = new FormData();
-        formData.append('idx', listNum);
-
-        axios({
-            url:'./data/notice_page/board.json',
-            method:'GET',
-            //method:'POST',
-            data: formData // => 해당하는 글번호 키 
-        })
-        .then((res)=>{
-            if(res.status===200){
-                
-                console.log( res.data.notice );
-                
-                let result = res.data.notice.filter((item) => item.NO===Number(listNum) );
-                console.log( result[0] );
-
-                res.data.notice.map((item) => {
-                    if(item.NO===Number(listNum)){ //파라미터값이 문자로 전송받은거 변환
-                        console.log( item.NO, item.제목 );
-                    }
-                })
-                
-                setState({
-                    공지사항: result[0] //배열[0]
-                })
-            }
-        })
-        .catch((err)=>{
-            console.log('AXIOS 실패!' + err );
-        });
-    },[]);
-
-
+    const 번호   = param.get('번호'); // 보내온 키를 이용 키값을 가져온다.
+    const 제목   = param.get('제목'); // 보내온 키를 이용 키값을 가져온다.
+    const 내용   = param.get('내용'); // 보내온 키를 이용 키값을 가져온다.
+    const 작성자 = param.get('작성자'); // 보내온 키를 이용 키값을 가져온다.
+    const 작성일 = param.get('작성일'); // 보내온 키를 이용 키값을 가져온다.
+    const 조회수 = param.get('조회수'); // 보내온 키를 이용 키값을 가져온다.
 
     const {ConfirmModalOkCancelOpen, isConfirmModalOkCancelResult} = React.useContext(ConfirmContext);
 
+    React.useEffect(()=>{
+
+        let formData = new FormData();
+        formData.append('bbsId', 번호);
+
+        axios({
+             url:'/bbs/viewActionReact.jsp',
+             method:'POST',
+             data: {},
+             params: {'bbsId': 번호}
+         })
+         .then((res)=>{
+
+         })
+         .catch((err)=>{
+             console.log('AXIOS 실패!' + err );
+         });
+
+    },[번호]);
+
+
+
+
+
+
+    // 삭제 수정하고자할 때 컨펌모달 닫기 할 때 실행하고자해서 만든것    
     React.useEffect(()=>{
 
         if(isConfirmModalOkCancelResult==='확인'){
@@ -63,13 +52,15 @@ export default function NoticeViewPageComponent () {
 
            // 삭제하고자하는 키
            let formData = new FormData();
-           formData.append('idx', listNum);
+           formData.append('bbsId', 번호);
 
            axios({
-                url:'./data/notice_page/board.json',
-                method:'GET',
+                url:'/bbs/viewAction.jsp',
+                // url:'./data/notice_page/board.json',
+                method:'POST',
                 //method:'POST',
-                data: formData // => 해당하는 글번호 키 
+                data: {}, // => 해당하는 글번호 키 
+                params: {'bbsId': 번호}
             })
             .then((res)=>{
                 if(res.status===200){
@@ -92,11 +83,32 @@ export default function NoticeViewPageComponent () {
         window.location.pathname = '/notice';
     }
 
-    // 글삭제
+    // 글삭제   
     const onClickDelete=(e)=>{
         e.preventDefault();
-        ConfirmModalOkCancelOpen('공지사항 글을 삭제 하시겠습니까?');        
+        axios({
+            url:'/bbs/deleteActionReact.jsp',
+            method:'POST',
+            data: {},
+            params: {
+               "bbsId": 번호
+           }
+        })
+        .then((res)=>{            
+            if(res.status===200 && res.data !== -1 ){
+                alert('삭제 되었습니다.');
+                window.location.pathname = '/notice';
+            }
+            else{
+               alert('삭제실패 데이터 확인하고 다시 시도하세요');
+            }
+        })
+        .catch((err)=>{
+            console.log('AXIOS 실패!' + err );
+        });
     }
+
+
 
     // 글수정
     const onClickUpdate=(e)=>{
@@ -115,20 +127,24 @@ export default function NoticeViewPageComponent () {
                 <div className="content">
                     <ul>
                         <li>
-                            <div className="left">제목</div>
-                            <div className="right">{공지사항.제목}</div>
+                            <div className="left">조회수</div>
+                            <div className="right">{Number(조회수)+1}</div>
                         </li>
                         <li>
-                            <div className="left">조회수</div>
-                            <div className="right">{공지사항.조회수}</div>  
+                            <div className="left">제목</div>
+                            <div className="right">{제목}</div>
+                        </li>
+                        <li>
+                            <div className="left">작성자</div>
+                            <div className="right">{작성자}</div>  
                         </li>
                         <li>
                             <div className="left">작성일</div>
-                            <div className="right">{공지사항.날짜}</div>  
+                            <div className="right">{작성일}</div>  
                         </li>
                         <li>
                             <div className="contents">
-                                {공지사항.내용}                               
+                                {내용}                               
                             </div>
                         </li>
                     </ul>

@@ -3,12 +3,15 @@ import {Link, Outlet, useNavigate, useLocation} from 'react-router-dom';
 // 컨텍스트를 사용하고자하면 해당 컴포넌트에서 가져와서 사용등록
 import {GlobalContext} from '../../context/GlobalContext';
 import {CartContext} from '../../context/CartContext';
+import { ConfirmContext } from '../../context/ConfirmContext';
 
 export default function HeaderComponent({setIsIntroFn}) {
 
+
     // 컨텍스트 사용 전역 변수 상태관리 
-    const {openPopupDaumPostApi, addr}  = React.useContext(GlobalContext);
+    const {openPopupDaumPostApi, addr, signin, setSigin}  = React.useContext(GlobalContext);
     const {cartCount, cartCountNumber}  = React.useContext(CartContext);
+    const {confirmModalOpen}  = React.useContext(ConfirmContext);
 
 
     const navigate = useNavigate();
@@ -103,7 +106,22 @@ export default function HeaderComponent({setIsIntroFn}) {
         }
     },[]);
 
+    const onClickSignOut=(e)=>{
+        e.preventDefault();
+        localStorage.removeItem(signin.signinKey); // 로그인 정보 모두 삭제
 
+        setSigin({
+            ...signin,
+            user_id:'',
+            expires:''
+        })
+        
+        confirmModalOpen('로그아웃 되었습니다.');
+        setTimeout(function(){
+            location.pathname = '/main';
+        },1000);
+        
+    }
 
 
     return (
@@ -117,7 +135,14 @@ export default function HeaderComponent({setIsIntroFn}) {
                                     <ul>
                                         <li><Link to="/signup" className={location.pathname==='/signup'?'on':''} title='회원가입'>회원가입</Link></li>
                                         <li><i>|</i></li>
-                                        <li><Link to="/signin" className={location.pathname==='/signup'?'on':''}  title='로그인'>로그인</Link></li>
+                                        <li>
+                                            {                                                
+                                              signin.user_id ==='' ? 
+                                              (<Link to="/signin" className={location.pathname==='/signup'?'on':''}  title='로그인'>로그인</Link>)
+                                              :  
+                                              (<button onClick={onClickSignOut} title='로그아웃'>로그아웃</button>)
+                                            }
+                                        </li>
                                         <li><i>|</i></li>
                                         <li>
                                             <Link onMouseOver={onMouseEnterSub1} to="/notice" title='고객센터'>고객센터 <img src="./images/sign_up/ico_down_16x10.png" alt="" /></Link>

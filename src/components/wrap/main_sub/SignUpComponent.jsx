@@ -4,6 +4,8 @@ import {GlobalContext} from '../../../context/GlobalContext';
 import {ConfirmContext} from '../../../context/ConfirmContext';
 import './scss/sign_up.scss';
 
+// 인터페이스 
+// 타입스크립트
 
 export default function SignUpComponent({회원가입, timer, timerCounterfn, mapAddressFn}) {
     // useContent() 훅

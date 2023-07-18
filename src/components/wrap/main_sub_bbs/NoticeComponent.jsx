@@ -20,18 +20,18 @@ export default function NoticeComponent() {
 
         axios({
             // url:'./data/notice_page/board.json',
-            // http://localhost:8080/bbs/bbsNoticeJSON.jsp
+            //http://localhost:8080/bbs/bbsNoticeJSON.jsp
             url:'/bbs/bbsNoticeJSON.jsp',
             method:'GET'
         })
         .then((res)=>{
-            // console.log( res.data );
-            // setNotice(res.data.notice);
-            setNotice(res.data);
-            setNotice(res.data.공지사항);
 
-            console.log( res.data )
-            console.log( res.data.공지사항 )
+            if(res.status===200){
+                if(res.data!==''){
+                    setNotice(res.data.공지사항);  
+                }
+            }
+           
             
         })
         .catch((err)=>{
@@ -45,6 +45,7 @@ export default function NoticeComponent() {
             <div id="container">
                 <NoticeLeftNavComponent/>
                 <NoticeRightListComponent notice={notice}/>
+                
 
                 {
                     isAdmin && (
